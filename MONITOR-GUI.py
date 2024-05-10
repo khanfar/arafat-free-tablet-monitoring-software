@@ -101,15 +101,21 @@ def start_bot():
             for line in file:
                 parts = line.strip().split(" | ")
                 if len(parts) == 5:  # Adjusted for the correct number of fields
-                    # Extracting the company name
-                    company_name_parts = parts[2].split(": ")
-                    if len(company_name_parts) > 1:
-                        company_name = company_name_parts[1]
-                    else:
-                        company_name = "Unknown"  # Default value if company name is not provided
-                    # Construct the formatted message
-                    formatted_message = f"{parts[0]} | {parts[1]} | اسم الشركه: {company_name} | {parts[3]} | {parts[4]}\n"
-                    terminal_box.insert(tk.END, formatted_message)
+                    # Extracting the date from the record
+                    record_date = parts[0]
+                    # Convert the record date string to a datetime object for comparison
+                    record_datetime = datetime.strptime(record_date, "%B %d, %Y")
+                    # Check if the record date matches today's date
+                    if record_datetime.strftime("%B %d, %Y") == today_date:
+                        # Extracting the company name
+                        company_name_parts = parts[2].split(": ")
+                        if len(company_name_parts) > 1:
+                            company_name = company_name_parts[1]
+                        else:
+                            company_name = "Unknown"  # Default value if company name is not provided
+                        # Construct the formatted message
+                        formatted_message = f"{parts[0]} | {parts[1]} | اسم الشركه: {company_name} | {parts[3]} | {parts[4]}\n"
+                        terminal_box.insert(tk.END, formatted_message)
     except FileNotFoundError:
         pass
 
@@ -123,6 +129,7 @@ def start_bot():
     # Register handle_message with group_chat_id
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, lambda update, context: handle_message(update, context, group_chat_id)))
     updater.start_polling()
+
 
 def send_start_message(bot_token, group_chat_id):
     updater = Updater(token=bot_token)
